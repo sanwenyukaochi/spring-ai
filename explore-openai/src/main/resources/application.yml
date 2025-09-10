@@ -1,0 +1,10 @@
+server:
+  servlet:
+    context-path: /springai
+weather:
+  api-key :
+  api-url : http://api.weatherapi.com/v1
+
+currency-exchange:
+  api-key :
+  base-url: https://openexchangerates.org/api

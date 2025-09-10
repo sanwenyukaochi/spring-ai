@@ -1,0 +1,17 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /springai
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  ai:
+    openai:
+      api-key: ${OPENAI_KEY}
+      chat: # By default its true, this triggers the autoconfiguration.
+        options:
+          model: gpt-4.1
+          temperature: 1.0
+          max_completion_tokens: 2000

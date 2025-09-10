@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+group = 'com.llm'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+    //web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //openai
+    implementation("org.springframework.ai:spring-ai-starter-model-openai")
+
+
+    //pdf document reader
+    implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
+
+    //tika document reader
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
+
+
+    //pg-vector
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
+
+    //flyway
+    implementation 'org.flywaydb:flyway-core'
+
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
