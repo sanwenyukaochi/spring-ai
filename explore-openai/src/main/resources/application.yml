@@ -1,6 +1,15 @@
 server:
   servlet:
     context-path: /springai
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      chat:
+        options:
+          model: qwen-max
+
 weather:
   api-key :
   api-url : http://api.weatherapi.com/v1
