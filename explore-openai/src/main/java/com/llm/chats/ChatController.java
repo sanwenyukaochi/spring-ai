@@ -1,19 +1,26 @@
 package com.llm.chats;
 
 import com.llm.dto.UserInput;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-public class ChatController { 
+@Validated
+public class ChatController {
 //    private final ChatClient chatClient;
 //
 //    private static final Logger log = LoggerFactory.getLogger(ChatController.class);
@@ -43,9 +50,14 @@ public class ChatController {
     }
 
     @PostMapping("/v1/chats")
-    public Object chat(@RequestBody UserInput userInput) {
+    public Object chat(@RequestBody @Valid UserInput userInput) {
         log.info("userInput message : {}", userInput);
-        Prompt prompt = new Prompt(new UserMessage(userInput.prompt()));
+        Prompt prompt = new Prompt(
+                List.of(
+                        new SystemMessage("这只是一个测试"),
+                        new UserMessage(userInput.prompt())
+                ),
+                ChatOptions.builder().build());
         log.info("requestSpec : {}", prompt);
         ChatResponse response = chatClient.call(prompt);
         log.info("responseSpec : {}", response);
