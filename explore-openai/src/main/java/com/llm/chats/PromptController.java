@@ -1,6 +1,7 @@
 package com.llm.chats;
 
 import com.llm.dto.UserInput;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -32,4 +33,16 @@ public class PromptController {
     }
 
 
+    @PostMapping("/v1/prompts")
+    public Object prompt(@RequestBody @Valid UserInput userInput) {
+        log.info("userInput message : {}", userInput);
+        String systemMessage = """
+                    你好
+                """;
+        SystemMessage sysMessage = new SystemMessage(systemMessage);
+        UserMessage userMessage = new UserMessage(userInput.prompt());
+        Prompt promptMessage = new Prompt(List.of(sysMessage, userMessage));
+        ChatClient.CallResponseSpec call = chatClient.prompt(promptMessage).call();
+        return call.content();
+    }
 }
