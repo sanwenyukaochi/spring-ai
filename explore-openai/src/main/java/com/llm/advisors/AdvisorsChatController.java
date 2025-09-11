@@ -25,8 +25,8 @@ public class AdvisorsChatController {
     public String advisors(@RequestBody UserInput userInput) {
 
         var systemMessage = """
-                You are a helpful assistant, who can answer java based questions.
-                For any other questions, please respond with I don't know in a funny way!
+                你真是个好帮手，能解答 Java 相关的问题。
+                如有其他问题，请用幽默的方式回答“我不知道”！
                 """;
 
         var responseSpec = chatClient

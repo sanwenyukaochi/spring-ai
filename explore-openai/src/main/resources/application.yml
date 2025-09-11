@@ -1,14 +1,15 @@
 server:
   servlet:
     context-path: /springai
+  port: 8080
 spring:
   ai:
     openai:
-      api-key: ${OPENAI_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_BASE_URL}
       chat:
         options:
-          model: qwen-max
+          model: ${OPENAI_MODEL}
 
 weather:
   api-key :
