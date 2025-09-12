@@ -29,23 +29,10 @@ import java.util.Objects;
  * 2. Enhances responses with processing time metadata
  * 3. Tracks performance metrics
  */
-//public class CustomAdvisor implements CallAdvisor {
-public class CustomAdvisor {
+public class CustomAdvisor implements CallAdvisor {
+//public class CustomAdvisor {
     private static final Logger log = LoggerFactory.getLogger(CustomAdvisor.class);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    //    @Override
-    public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
-        //        // 1. Capture start time for performance tracking
-        Instant startTime = Instant.now();
-
-        var modifiedRequest = enhanceRequest(chatClientRequest);
-        log.info("Modified request: {}", modifiedRequest);
-        var originalResponse =  callAdvisorChain.nextCall(chatClientRequest);
-        Duration processingTime = Duration.between(startTime, Instant.now());
-        return Objects.requireNonNull(enhanceResponse(originalResponse, processingTime));
-    }
-
 
     private ChatClientRequest enhanceRequest(ChatClientRequest originalRequest) {
         // Get the original user messages
@@ -110,14 +97,26 @@ public class CustomAdvisor {
         return enhancedResponse;
     }
 
-//    @Override
+    @Override
     public String getName() {
         return "EnhancedCustomAdvisor";
     }
 
-//    @Override
+    @Override
     public int getOrder() {
         return 0;
+    }
+
+    @Override
+    public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
+        //        // 1. Capture start time for performance tracking
+        Instant startTime = Instant.now();
+
+        var modifiedRequest = enhanceRequest(chatClientRequest);
+        log.info("Modified request: {}", modifiedRequest);
+        var originalResponse =  callAdvisorChain.nextCall(chatClientRequest);
+        Duration processingTime = Duration.between(startTime, Instant.now());
+        return Objects.requireNonNull(enhanceResponse(originalResponse, processingTime));
     }
 
 }
