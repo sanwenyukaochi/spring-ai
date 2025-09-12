@@ -18,3 +18,7 @@ weather:
 currency-exchange:
   api-key :
   base-url: https://openexchangerates.org/api
+  
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: DEBUG
