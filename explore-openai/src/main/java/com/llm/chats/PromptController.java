@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -45,10 +45,10 @@ public class PromptController {
                 """;
         SystemMessage sysMessage = new SystemMessage(systemTemplateMessage);
         UserMessage userMessage = new UserMessage(userInput.prompt());
-        Prompt promptMessage = new Prompt(List.of(sysMessage, 
-               // new UserMessage("我的名字是?"),
-               // new AssistantMessage("我不知道"),
-               // new AssistantMessage("我的名字是小宋"),
+        Prompt promptMessage = new Prompt(List.of(sysMessage,
+                // new UserMessage("我的名字是?"),
+                // new AssistantMessage("我不知道"),
+                // new AssistantMessage("我的名字是小宋"),
                 userMessage));
         ChatClient.CallResponseSpec call = chatClient.prompt(promptMessage).call();
         return call.content();
@@ -65,4 +65,23 @@ public class PromptController {
         ChatClient.CallResponseSpec call = chatClient.prompt(promptMessage).call();
         return call.content();
     }
+
+    @PostMapping("/v2/prompts/{language}")
+    public Object chatV2(@RequestBody @Valid UserInput userInput, @PathVariable String language) {
+        log.info("userInput : {}, language : {}", userInput, language);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient
+                .prompt()
+                .advisors(List.of(new SimpleLoggerAdvisor()))
+                .user(userInput.prompt())
+                .system(promptSystemSpec ->
+                        promptSystemSpec.text(systemText)
+                                .param("language", language));
+        log.info("requestSpec : {}", requestSpec);
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
+        log.info("responseSpec : {}", responseSpec);
+        String content = responseSpec.content();
+        log.info("content : {}", content);
+        return content;
+    }
+
 }
