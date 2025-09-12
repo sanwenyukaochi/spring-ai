@@ -31,6 +31,7 @@ public class AdvisorsChatController {
 
         var responseSpec = chatClient
                 .prompt()
+                .advisors(new SimpleLoggerAdvisor())
                 .user(userInput.prompt())
                 .system(systemMessage)
                 .call();
