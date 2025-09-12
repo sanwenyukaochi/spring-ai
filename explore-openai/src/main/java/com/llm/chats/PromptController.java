@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -37,11 +38,16 @@ public class PromptController {
     public Object prompt(@RequestBody @Valid UserInput userInput) {
         log.info("userInput message : {}", userInput);
         String systemMessage = """
-                    你好
+                    你真是个好帮手，能解答 Java 相关的问题。
+                    如有其他问题，请用幽默的方式回答“我不知道”！
                 """;
         SystemMessage sysMessage = new SystemMessage(systemMessage);
         UserMessage userMessage = new UserMessage(userInput.prompt());
-        Prompt promptMessage = new Prompt(List.of(sysMessage, userMessage));
+        Prompt promptMessage = new Prompt(List.of(sysMessage, 
+                new UserMessage("我的名字是?"),
+                new AssistantMessage("我不知道"),
+                new AssistantMessage("我的名字是小宋"),
+                userMessage));
         ChatClient.CallResponseSpec call = chatClient.prompt(promptMessage).call();
         return call.content();
     }
