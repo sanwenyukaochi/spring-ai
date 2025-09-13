@@ -1,3 +1,3 @@
-Summarize the following content.
+概括以下内容。
 
 {input}
