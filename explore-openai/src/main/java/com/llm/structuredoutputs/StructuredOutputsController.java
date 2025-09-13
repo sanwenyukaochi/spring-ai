@@ -106,4 +106,31 @@ public class StructuredOutputsController {
         log.info("soccerTeams : {} ", soccerTeams);
         return soccerTeams;
     }
+
+    @PostMapping("/v1/structured_outputs/entity/map")
+    public Map<String, Object> structuredOutputsMap(@RequestBody @Valid UserInput userInput) {
+
+        log.info("userInput message : {} ", userInput);
+        MapOutputConverter mapOutputConverter = new MapOutputConverter();
+
+        String format = mapOutputConverter.getFormat();
+        String template = """
+        Input : {input}
+        {format}
+        """;
+
+        PromptTemplate promptTemplate = new PromptTemplate(template);
+        Message message = promptTemplate.createMessage(
+                Map.of("input", userInput.prompt(), "format", format)
+        );
+        Prompt promptMessage = new Prompt(List.of(message));
+        log.info("promptMessage : {} ", promptMessage);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
+
+        String soccerTeamsByMap = requestSpec.call().content();
+
+        log.info("soccerTeamsByMap : {} ", soccerTeamsByMap);
+        Map<String, Object> result = mapOutputConverter.convert(soccerTeamsByMap);
+        return result;
+    }
 }
