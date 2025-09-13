@@ -75,4 +75,20 @@ public class StructuredOutputsController {
         ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
+
+    @PostMapping("/v1/structured_outputs/entity")
+    public FlightBooking structuredOutputsEntity(@RequestBody @Valid UserInput userInput) {
+
+        log.info("userInput message : {} ", userInput);
+
+        PromptTemplate promptTemplate = new PromptTemplate(flightBooking);
+        Message message = promptTemplate.createMessage(Map.of("input", userInput.prompt()));
+        Prompt promptMessage = new Prompt(List.of(message));
+
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
+        
+        FlightBooking booking = requestSpec.call().entity(FlightBooking.class);
+        log.info("booking : {} ", booking);
+        return booking;
+    }
 }
