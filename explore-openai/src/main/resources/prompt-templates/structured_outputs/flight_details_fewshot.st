@@ -1,9 +1,8 @@
-Extract the key information from the following text delimited by triple backticks and format it in JSON.
+从以下以三个反引号分隔的文本中提取关键信息，并将其格式化为 JSON。
 
-I need details like name, booking date, flight information (flight number, origin, destination, departure/arrival times),s
-luggage details, ticket price, and seat number.
+我需要姓名、预订日期、航班信息（航班号、出发地、目的地、出发/到达时间）、行李详情、机票价格和座位号等详细信息。
 
-Here is an example output of the JSON format:\n
+以下是 JSON 格式的示例输出：\n
 
  {jsonexample}
 

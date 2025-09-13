@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -49,13 +50,29 @@ public class StructuredOutputsController {
     public String structuredOutputs(@RequestBody @Valid UserInput userInput) {
 
         log.info("userInput message : {} ", userInput);
-        var message = new UserMessage(userInput.prompt());
-        var promptMessage = new Prompt(List.of(message));
+        Message message = new UserMessage(userInput.prompt());
+        Prompt promptMessage = new Prompt(List.of(message));
 
-        var requestSpec = chatClient.prompt(promptMessage);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
 
-        log.info("requestSpec : {} ", requestSpec);
-        var responseSpec = requestSpec.call();
+//        log.info("requestSpec : {} ", requestSpec);
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
+        return responseSpec.content();
+    }
+
+    @PostMapping("/v1/structured_outputs/fewshot")
+    public String structuredOutputsFewshot(@RequestBody @Valid UserInput userInput) {
+
+        log.info("userInput message : {} ", userInput);
+
+        PromptTemplate promptTemplate = new PromptTemplate(flightBookingFewShot);
+        Message message = promptTemplate.createMessage(Map.of("input", userInput.prompt(),"jsonexample" ,CommonUtils.flightJson()));
+        Prompt promptMessage = new Prompt(List.of(message));
+
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
+
+//        log.info("requestSpec : {} ", requestSpec);
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
 }
