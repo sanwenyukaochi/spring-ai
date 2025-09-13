@@ -91,4 +91,19 @@ public class StructuredOutputsController {
         log.info("booking : {} ", booking);
         return booking;
     }
+
+    @PostMapping("/v1/structured_outputs/entity/list")
+    public List<SoccerTeam> structuredOutputsList(@RequestBody @Valid UserInput userInput) {
+
+        log.info("userInput message : {} ", userInput);
+
+        Message message = new UserMessage(userInput.prompt());
+        Prompt promptMessage = new Prompt(List.of(message));
+
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
+
+        List<SoccerTeam> soccerTeams = requestSpec.call().entity(new ParameterizedTypeReference<List<SoccerTeam>>() {});
+        log.info("soccerTeams : {} ", soccerTeams);
+        return soccerTeams;
+    }
 }
