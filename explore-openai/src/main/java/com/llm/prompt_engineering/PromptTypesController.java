@@ -38,14 +38,14 @@ public class PromptTypesController {
     public String zeroShot(@RequestBody UserInput userInput) {
         log.info("userInput : {} ", userInput);
 
-        var promptMessage = new Prompt(
+        Prompt promptMessage = new Prompt(
                 List.of(
                         new UserMessage(userInput.prompt())
                 )
         );
-        var requestSpec = chatClient.prompt(promptMessage);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
 
-        var responseSpec = requestSpec.call();
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
 
