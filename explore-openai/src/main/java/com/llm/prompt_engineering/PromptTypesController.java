@@ -110,14 +110,14 @@ public class PromptTypesController {
         log.info("userInput : {} ", userInput);
         PromptTemplate promptTemplate = new PromptTemplate(multiStep1);
 //        PromptTemplate promptTemplate = new PromptTemplate(multiStep2);
-        var message = promptTemplate.createMessage(Map.of("input", userInput.prompt()));
+        Message message = promptTemplate.createMessage(Map.of("input", userInput.prompt()));
         log.info("prompt : {} ",message.getText());
-        var promptMessage = new Prompt(
+        Prompt promptMessage = new Prompt(
                 List.of(message)
         );
-        var requestSpec = chatClient.prompt(promptMessage);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
 
-        var responseSpec = requestSpec.call();
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
 }
