@@ -1,6 +1,7 @@
 package com.llm.tool_calling;
 
 import com.llm.dto.UserInput;
+import com.llm.tool_calling.currency.CurrencyTools;
 import com.llm.tool_calling.currenttime.DateTimeTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +24,27 @@ public class ToolCallingController {
 
     private final ChatClient chatClient;
 
+    private final CurrencyTools currencyTools;
+    
     private final OpenAiChatModel openAiChatModel;
 
     public ToolCallingController(ChatClient.Builder builder,
-                                 OpenAiChatModel openAiChatModel) {
+                                 OpenAiChatModel openAiChatModel,
+                                 CurrencyTools currencyTools) {
 
         this.chatClient = builder
                 .defaultSystem("您是一位乐于助人的人工智能助手，可以根据需要访问工具来回答用户的问题！")
                 .build();
         this.openAiChatModel = openAiChatModel;
+        this.currencyTools = currencyTools;
     }
 
     @PostMapping("/v1/tool_calling")
     public String toolCalling(@RequestBody UserInput userInput) {
 
         ToolCallback[] tools = ToolCallbacks.from(
-                new DateTimeTools()
+                new DateTimeTools(),
+                currencyTools
         );
 
         ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt()

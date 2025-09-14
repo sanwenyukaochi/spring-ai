@@ -16,7 +16,7 @@ weather:
   api-url : http://api.weatherapi.com/v1
 
 currency-exchange:
-  api-key :
+  api-key : ${CURRENCY_EXCHANGE}
   base-url: https://openexchangerates.org/api
   
 logging:
