@@ -4,6 +4,7 @@ import com.llm.dto.UserInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -35,14 +36,15 @@ public class TravelAssistantController {
     public String prompts(@RequestBody UserInput userInput) {
         log.info("userInput : {} ", userInput);
 
-        var promptMessage = new Prompt(
+        Prompt promptMessage = new Prompt(
                 List.of(
                         new UserMessage(userInput.prompt())
                 )
         );
-        var requestSpec = chatClient.prompt(promptMessage);
 
-        var responseSpec = requestSpec.call();
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
+        
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
 
@@ -50,24 +52,24 @@ public class TravelAssistantController {
     public String promptsv2(@RequestBody UserInput userInput) {
         log.info("userInput : {} ", userInput);
 
-        var systemMessage = """
-                You are a professional travel planner with extensive knowledge of worldwide destinations,
-                including cultural attractions, accommodations, and travel logistics.
-                Provide better lodging options too that supports the family.
+        String systemMessage = """
+                您是一位专业的旅行策划师，对全球目的地有着丰富的了解，
+                包括文化景点、住宿和旅行物流。
+                同时，您还能为家庭提供更优质的住宿选择。
                 """;
 
         PromptTemplate promptTemplate = new PromptTemplate(travelPromptMessage);
-        var message = promptTemplate.createMessage(Map.of("context", userInput.context(), "input", userInput.prompt()));
+        Message message = promptTemplate.createMessage(Map.of("context", userInput.context(), "input", userInput.prompt()));
 
-        var promptMessage = new Prompt(
+        Prompt promptMessage = new Prompt(
                 new SystemMessage(systemMessage), // Sets the role
                 message
                 );
 
         log.info("promptMessage : {} ", promptMessage);
-        var requestSpec = chatClient.prompt(promptMessage);
+        ChatClient.ChatClientRequestSpec requestSpec = chatClient.prompt(promptMessage);
 
-        var responseSpec = requestSpec.call();
+        ChatClient.CallResponseSpec responseSpec = requestSpec.call();
         return responseSpec.content();
     }
 

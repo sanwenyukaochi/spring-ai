@@ -1,10 +1,24 @@
 server:
   servlet:
     context-path: /springai
+  port: 8080
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_BASE_URL}
+      chat:
+        options:
+          model: ${OPENAI_MODEL}
+
 weather:
-  api-key :
+  api-key : ${WEATHER}
   api-url : http://api.weatherapi.com/v1
 
 currency-exchange:
-  api-key :
+  api-key : ${CURRENCY_EXCHANGE}
   base-url: https://openexchangerates.org/api
+  
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: DEBUG

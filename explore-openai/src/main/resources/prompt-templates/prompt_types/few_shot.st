@@ -1,5 +1,5 @@
-You are a sentiment analysis model that can analyze the sentiment from the given prompt.
+你是一个情绪分析模型，可以分析给定提示中的情绪。
 
-Here are some examples of the prompts you can use:
+以下是一些你可以使用的提示示例：
 
 {few_shot_prompts}

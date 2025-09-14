@@ -1,9 +1,9 @@
-Perform the following actions on the text delimited by triple backticks:
+对由三个反引号分隔的文本执行以下操作：
 
-    1. **Summarize** the text in 2 sentences.
-    2. **Identify** the profession and hobbies of the person in the text.
-    3. **Provide advice** for someone who shares the same profession on how to balance work and personal life.
-    4. **Output** a JSON object with the following structure:
+    1. 用两句话**总结**文本。
+    2. **识别**文本中人物的职业和爱好。
+    3. 为同职业的人提供如何平衡工作和个人生活的建议。
+    4. **输出**一个 JSON 对象，其结构如下：
 
         {{
             "summary": "<your summary>",
@@ -12,7 +12,7 @@ Perform the following actions on the text delimited by triple backticks:
             "advice": "<your advice>"
         }}
 
-Please ensure your answers are separated by line breaks.
+请确保您的答案以换行符分隔。
 
-    Text to process:
+    待处理的文本：
     ```{input}```

@@ -1,9 +1,9 @@
-Perform the following actions on the text delimited by triple backticks:
+对由三个反引号分隔的文本执行以下操作：
 
-    1. Summarize the text in one sentence.
-    2. Translate the summary into French.
-    3. List all the key characters mentioned in the text.
-    4. Output a JSON object with the structure:
+    1. 用一句话概括文本。
+    2. 将摘要翻译成法语。
+    3. 列出文本中提到的所有关键人物。
+    4. 输出一个 JSON 对象，其结构如下：
     {{
         "summary": "<your summary>",
         "translation": "<translated summary>",

@@ -14,10 +14,42 @@ public class CurrencyTools {
     private static final Logger log = LoggerFactory.getLogger(CurrencyTools.class);
 
     private final RestClient restClient;
+    private final CurrencyExchangeConfigProperties currencyExchangeConfigProperties;
 
-
-    public CurrencyTools() {
-        this.restClient = RestClient.create();
+    public CurrencyTools(RestClient restClient, CurrencyExchangeConfigProperties currencyExchangeConfigProperties) {
+        this.restClient = RestClient.create(currencyExchangeConfigProperties.baseUrl());
+        this.currencyExchangeConfigProperties = currencyExchangeConfigProperties;
     }
 
+//    @Tool(description = "获取最新货币汇率")
+    @Tool(description = "获取最新的货币汇率。对于多种货币转换，请使用逗号分隔符号值",
+            returnDirect = true)
+    public CurrencyResponse getCurrencyRates(CurrencyRequest currencyRequest,
+                                             ToolContext toolContext) {
+        log.info("RestClient CurrencyTools is invoked - getCurrencyRates: {}", currencyRequest);
+
+        if (toolContext != null) {
+            Object userId = toolContext.getContext().get("userId");
+            log.info("userId: {}", userId);
+        }
+
+        try {
+            CurrencyResponse response = restClient
+                    .get()
+                    .uri("/latest.json?app_id={key}&base={base}&symbols={symbols}",
+                            currencyExchangeConfigProperties.apiKey(),
+                            currencyRequest.base(),
+                            currencyRequest.symbols())
+                    .retrieve()
+                    .body(CurrencyResponse.class);
+
+            log.info("response : {}", response);
+            return response;
+
+        } catch (Exception e) {
+            log.error("获取货币汇率时出错 : ", e);
+            throw e;
+        }
+
+    }
 }
