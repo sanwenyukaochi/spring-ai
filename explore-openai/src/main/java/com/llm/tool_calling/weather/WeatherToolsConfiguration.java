@@ -11,5 +11,17 @@ import java.util.function.Function;
 @Configuration(proxyBeanMethods = false)
 public class WeatherToolsConfiguration {
 
+    public static final String CURRENT_WEATHER_TOOL = "currentWeatherFunction";
+    
+    private final WeatherConfigProperties weatherProps;
 
+    public WeatherToolsConfiguration(WeatherConfigProperties weatherProps) {
+        this.weatherProps = weatherProps;
+    }
+
+    @Bean(CURRENT_WEATHER_TOOL)
+    @Description("获取给定城市的当前天气状况。")
+    public Function<WeatherRequest,WeatherResponse> currentWeatherFunction(){
+        return new WeatherToolsFunction(weatherProps);
+    }
 }

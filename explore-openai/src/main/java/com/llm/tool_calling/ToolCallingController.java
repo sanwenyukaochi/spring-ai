@@ -45,7 +45,8 @@ public class ToolCallingController {
         
         this.chatClient = builder
                 .defaultSystem("您是一位乐于助人的人工智能助手，可以根据需要访问工具来回答用户的问题！")
-                .defaultToolCallbacks(toolCallback)
+//                .defaultToolCallbacks(toolCallback)
+                .defaultToolNames("currentWeatherFunction")
                 .build();
         this.openAiChatModel = openAiChatModel;
         this.currencyTools = currencyTools;
