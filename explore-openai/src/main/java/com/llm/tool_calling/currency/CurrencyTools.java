@@ -22,7 +22,8 @@ public class CurrencyTools {
     }
 
 //    @Tool(description = "获取最新货币汇率")
-    @Tool(description = "获取最新的货币汇率。对于多种货币转换，请使用逗号分隔符号值")
+    @Tool(description = "获取最新的货币汇率。对于多种货币转换，请使用逗号分隔符号值", 
+            returnDirect = true)
     public CurrencyResponse getCurrencyRates(CurrencyRequest currencyRequest) {
         log.info("调用 RestClient CurrencyTools - getCurrencyRates: {}", currencyRequest);
         
