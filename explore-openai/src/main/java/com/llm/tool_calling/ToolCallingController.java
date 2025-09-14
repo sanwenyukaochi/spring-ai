@@ -3,6 +3,9 @@ package com.llm.tool_calling;
 import com.llm.dto.UserInput;
 import com.llm.tool_calling.currency.CurrencyTools;
 import com.llm.tool_calling.currenttime.DateTimeTools;
+import com.llm.tool_calling.weather.WeatherConfigProperties;
+import com.llm.tool_calling.weather.WeatherToolsFunction;
+import com.llm.tool_calling.weather.dtos.WeatherRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -16,6 +19,7 @@ import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,11 +33,19 @@ public class ToolCallingController {
     private final OpenAiChatModel openAiChatModel;
 
     public ToolCallingController(ChatClient.Builder builder,
+                                 WeatherConfigProperties weatherConfigProperties,
                                  OpenAiChatModel openAiChatModel,
                                  CurrencyTools currencyTools) {
 
+        ToolCallback toolCallback = FunctionToolCallback
+                .builder("currentWeather", new WeatherToolsFunction(weatherConfigProperties))
+                .description("获取当地天气")
+                .inputType(WeatherRequest.class)
+                .build();
+        
         this.chatClient = builder
                 .defaultSystem("您是一位乐于助人的人工智能助手，可以根据需要访问工具来回答用户的问题！")
+                .defaultToolCallbacks(toolCallback)
                 .build();
         this.openAiChatModel = openAiChatModel;
         this.currencyTools = currencyTools;

@@ -2,5 +2,5 @@ package com.llm.tool_calling.weather.dtos;
 
 import org.springframework.ai.tool.annotation.ToolParam;
 
-public record WeatherRequest(@ToolParam(description = "The name of a city or a country")String city) {
+public record WeatherRequest(@ToolParam(description = "城市或国家的名称")String city) {
 }

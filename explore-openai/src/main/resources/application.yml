@@ -12,7 +12,7 @@ spring:
           model: ${OPENAI_MODEL}
 
 weather:
-  api-key :
+  api-key : ${WEATHER}
   api-url : http://api.weatherapi.com/v1
 
 currency-exchange:
