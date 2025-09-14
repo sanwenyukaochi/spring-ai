@@ -21,5 +21,10 @@ public class GroundingController {
         return groundingService.grounding(groundingRequest);
     }
 
+    @PostMapping("/api/v2/grounding")
+    public GroundingResponse groundingV2(@RequestBody GroundingRequest groundingRequest) {
+        return groundingService.retrieveAnswer(groundingRequest);
+    }
+
 
 }

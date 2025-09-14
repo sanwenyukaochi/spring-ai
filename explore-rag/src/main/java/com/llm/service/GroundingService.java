@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.ai.document.Document;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,18 +34,21 @@ public class GroundingService {
     private static final Logger log = LoggerFactory.getLogger(GroundingService.class);
 
     private final ChatClient chatClient;
-    
+
     private String handbookContent;
 
     @Value("classpath:/prompt-templates/RAG-Prompt.st")
     private Resource ragPrompt;
 
+    private final PgVectorStore vectorStore;
 
     @Value("classpath:/prompt-templates/RAG-QA-Prompt.st")
     private Resource ragQAPrompt;
 
-    public GroundingService(ChatClient.Builder chatClientBuilder) {
+    public GroundingService(ChatClient.Builder chatClientBuilder,
+                            @Qualifier("qaVectorStore") PgVectorStore vectorStore) {
         this.chatClient = chatClientBuilder.build();
+        this.vectorStore=vectorStore;
     }
 
     public GroundingResponse grounding(GroundingRequest groundingRequest) {
@@ -64,4 +68,27 @@ public class GroundingService {
         handbookContent = Files.readString(filePath);
     }
 
+    public GroundingResponse retrieveAnswer(GroundingRequest groundingRequest) {
+
+
+        List<Document> results = vectorStore
+                .doSimilaritySearch(SearchRequest.builder()
+                        .query(groundingRequest.prompt())
+                        .build());
+
+        log.info("results size : {} ", results.size());
+
+        String context = results.stream()
+                .filter(Objects::nonNull)
+                .filter(result -> result.getScore() != null && result.getScore() > 0.7)
+                .map(Document::getText)
+                .filter(text -> text != null && !text.isEmpty())
+                .limit(2)
+                .collect(Collectors.joining("\n"));
+
+        log.info("context :  {} ", context);
+
+        return new GroundingResponse(context);
+
+    }
 }
