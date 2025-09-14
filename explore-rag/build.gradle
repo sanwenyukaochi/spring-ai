@@ -24,7 +24,7 @@ dependencies {
 
 
     //pg-vector
-    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
+//    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
 
     //flyway
     implementation 'org.flywaydb:flyway-core'
