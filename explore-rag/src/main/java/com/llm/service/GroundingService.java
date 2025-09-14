@@ -88,7 +88,25 @@ public class GroundingService {
 
         log.info("context :  {} ", context);
 
-        return new GroundingResponse(context);
+        if(StringUtils.isNotEmpty(context)) {
+            log.info("Matched context :  {} ", context);
+
+            PromptTemplate promptTemplate = new PromptTemplate(ragQAPrompt);
+            Message promptMessage = promptTemplate.createMessage(
+                    Map.of("input", groundingRequest.prompt(),
+                            "context", context));
+
+            Prompt prompt = new Prompt(List.of(promptMessage));
+            String response = chatClient.prompt(prompt)
+                    .call()
+                    .content();
+            log.info("response : {} ", response);
+            return new GroundingResponse(response);
+
+        }else{
+            log.info("没有相关上下文，因此发送默认响应");
+            return new GroundingResponse("抱歉，未找到相关信息");
+        }
 
     }
 }
