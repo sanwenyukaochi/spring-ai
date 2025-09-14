@@ -9,11 +9,12 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      api-key: ${OPENAI_KEY}
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_BASE_URL}
       chat:
         enabled: true # By default its true, this triggers the autoconfiguration.
         options:
-          model: gpt-4o
+          model: ${OPENAI_MODEL}
           temperature: 1.0
           max_completion_tokens: 2000
 #    vectorstore:
