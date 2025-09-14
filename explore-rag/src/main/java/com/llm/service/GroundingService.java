@@ -11,12 +11,13 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-//import org.springframework.ai.vectorstore.SearchRequest;
-//import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.ai.document.Document;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,18 +34,21 @@ public class GroundingService {
     private static final Logger log = LoggerFactory.getLogger(GroundingService.class);
 
     private final ChatClient chatClient;
-    
+
     private String handbookContent;
 
     @Value("classpath:/prompt-templates/RAG-Prompt.st")
     private Resource ragPrompt;
 
+    private final PgVectorStore vectorStore;
 
     @Value("classpath:/prompt-templates/RAG-QA-Prompt.st")
     private Resource ragQAPrompt;
 
-    public GroundingService(ChatClient.Builder chatClientBuilder) {
+    public GroundingService(ChatClient.Builder chatClientBuilder,
+                            @Qualifier("qaVectorStore") PgVectorStore vectorStore) {
         this.chatClient = chatClientBuilder.build();
+        this.vectorStore=vectorStore;
     }
 
     public GroundingResponse grounding(GroundingRequest groundingRequest) {
@@ -64,4 +68,45 @@ public class GroundingService {
         handbookContent = Files.readString(filePath);
     }
 
+    public GroundingResponse retrieveAnswer(GroundingRequest groundingRequest) {
+
+
+        List<Document> results = vectorStore
+                .doSimilaritySearch(SearchRequest.builder()
+                        .query(groundingRequest.prompt())
+                        .build());
+
+        log.info("results size : {} ", results.size());
+
+        String context = results.stream()
+                .filter(Objects::nonNull)
+                .filter(result -> result.getScore() != null && result.getScore() > 0.7)
+                .map(Document::getText)
+                .filter(text -> text != null && !text.isEmpty())
+                .limit(2)
+                .collect(Collectors.joining("\n"));
+
+        log.info("context :  {} ", context);
+
+        if(StringUtils.isNotEmpty(context)) {
+            log.info("Matched context :  {} ", context);
+
+            PromptTemplate promptTemplate = new PromptTemplate(ragQAPrompt);
+            Message promptMessage = promptTemplate.createMessage(
+                    Map.of("input", groundingRequest.prompt(),
+                            "context", context));
+
+            Prompt prompt = new Prompt(List.of(promptMessage));
+            String response = chatClient.prompt(prompt)
+                    .call()
+                    .content();
+            log.info("response : {} ", response);
+            return new GroundingResponse(response);
+
+        }else{
+            log.info("没有相关上下文，因此发送默认响应");
+            return new GroundingResponse("抱歉，未找到相关信息");
+        }
+
+    }
 }
