@@ -170,6 +170,10 @@ Paragraph Document Reader|
 }
 
 {
+    "prompt": "how many teams participated in the women’s soccer tournament?"
+}
+
+{
     "prompt": "Who claimed the bronze medal in the men’s soccer tournament?"
 }
 
