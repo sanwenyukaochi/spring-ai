@@ -87,6 +87,13 @@ public class IngestionService implements CommandLineRunner {
         log.info("已成功从 word 中提取 {} 个文档", docs.size());
     }
 
+    private void ingestTextDocs(String ingestType, Resource docSource) {
+        log.info("提取 TXT 文档");
+        List<Document> docs = getTxtDocuments(docSource, ingestType);
+        vectorStore.add(docs);
+        log.info("成功从 txt 文件中提取 {} 个文档", docs.size());
+    }
+
     private static List<Document> getPDFDocuments(String ingestType, Resource pdfResource) {
         try {
             return switch (ingestType) {
@@ -113,13 +120,10 @@ public class IngestionService implements CommandLineRunner {
         };
     }
 
-    private void ingestTextDocs(String ingestType, Resource docSource) {
-        log.info("提取文本文档");
+    private List<Document> getTxtDocuments(Resource docSource, String ingestType) {
         TextReader textReader = new TextReader(docSource);
         textReader.getCustomMetadata().put("filename", docSource.getFilename());
-        List<Document> docs = textReader.read();
-        vectorStore.add(docs);
-        log.info("成功从文本文件中提取 {} 个文档", docs.size());
+        return textReader.read();
     }
 }
 
