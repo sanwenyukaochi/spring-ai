@@ -9,9 +9,14 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      api-key: ${OPENAI_KEY}
-      chat: # By default its true, this triggers the autoconfiguration.
+      api-key: ${POLO_AI_API_KEY}
+      base-url: ${POLO_AI_BASE_URL}
+      chat:
         options:
-          model: gpt-4.1
+          model: ${POLO_AI_CHAT_MODEL}
           temperature: 1.0
           max_completion_tokens: 2000
+      image:
+        options:
+          model: ${POLO_AI_IMAGE_MODEL}
+          quality: hd
