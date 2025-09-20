@@ -4,6 +4,7 @@ import com.llm.utils.RagUtiils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.ParagraphPdfDocumentReader;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
@@ -61,7 +62,12 @@ public class IngestionService implements CommandLineRunner {
             case "docx" -> {
                 log.info("正在导入 DOCX 文件: {}", fileName);
                 // 在此处实现 DOCX 提取逻辑
-                ingestWordDocs(fileName, ingestType, docSource);
+                ingestWordDocs(ingestType, docSource);
+            }
+            case "txt" -> {
+                log.info("Ingesting txt file: {}", fileName);
+                // 在此处实现 TXT 提取逻辑
+                ingestTextDocs(ingestType, docSource);
             }
             default -> throw new IllegalArgumentException("不支持的文件类型: " + fileExtension);
         }
@@ -74,7 +80,7 @@ public class IngestionService implements CommandLineRunner {
         log.info("已成功从 pdf 中提取 {} 个文档", docs.size());
     }
 
-    private void ingestWordDocs(String filename, String ingestType, Resource docSource) {
+    private void ingestWordDocs(String ingestType, Resource docSource) {
         log.info("提取 DOCX 文档");
         List<Document> docs = getWordDocuments(docSource, ingestType);
         vectorStore.add(docs);
@@ -89,7 +95,7 @@ public class IngestionService implements CommandLineRunner {
                 default -> throw new IllegalArgumentException("提取类型无效: " + ingestType);
             };
         } catch (Exception e) {
-            log.error("读取 PDF 文档时出错: {}", e.getMessage());
+            log.error("读取 PDF 文档时出错: {}", e.getMessage(), e);
             throw new RuntimeException("读取 PDF 文档时出错", e);
         }
     }
@@ -105,6 +111,15 @@ public class IngestionService implements CommandLineRunner {
             }
             default -> docs;
         };
+    }
+
+    private void ingestTextDocs(String ingestType, Resource docSource) {
+        log.info("提取文本文档");
+        TextReader textReader = new TextReader(docSource);
+        textReader.getCustomMetadata().put("filename", docSource.getFilename());
+        List<Document> docs = textReader.read();
+        vectorStore.add(docs);
+        log.info("成功从文本文件中提取 {} 个文档", docs.size());
     }
 }
 

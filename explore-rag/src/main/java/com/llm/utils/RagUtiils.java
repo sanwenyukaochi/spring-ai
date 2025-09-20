@@ -7,6 +7,6 @@ public class RagUtiils {
         if (lastIndexOfDot == -1) {
             return ""; // No extension found
         }
-        return fileName.substring(lastIndexOfDot + 1);
+        return fileName.substring(lastIndexOfDot + 1); // pdf, docx, txt
     }
 }

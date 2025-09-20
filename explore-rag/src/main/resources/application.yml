@@ -36,4 +36,4 @@ spring:
   flyway:
     enabled: false
 ingestion:
-  enabled: true
+  enabled: false

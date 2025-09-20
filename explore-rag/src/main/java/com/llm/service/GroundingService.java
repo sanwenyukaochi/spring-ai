@@ -3,7 +3,7 @@ package com.llm.service;
 
 import com.llm.dtos.GroundingRequest;
 import com.llm.dtos.GroundingResponse;
-import io.micrometer.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,20 +48,19 @@ public class GroundingService {
     public GroundingService(ChatClient.Builder chatClientBuilder,
                             @Qualifier("qaVectorStore") PgVectorStore vectorStore) {
         this.chatClient = chatClientBuilder.build();
-        this.vectorStore=vectorStore;
+        this.vectorStore = vectorStore;
     }
 
     public GroundingResponse grounding(GroundingRequest groundingRequest) {
         PromptTemplate promptTemplate = new PromptTemplate(ragPrompt);
         Message promptMessage = promptTemplate.createMessage(
                 Map.of("input", groundingRequest.prompt(),
-                        "context", handbookContent)
-        );
+                        "context", handbookContent));
         Prompt prompt = new Prompt(List.of(promptMessage));
         String response = chatClient.prompt(prompt).call().content();
         return new GroundingResponse(response);
     }
-    
+
     @PostConstruct
     public void init() throws IOException {
         Path filePath = Paths.get("explore-rag/src/main/resources/docs/technova-handbook.txt");
@@ -69,8 +68,6 @@ public class GroundingService {
     }
 
     public GroundingResponse retrieveAnswer(GroundingRequest groundingRequest) {
-
-
         List<Document> results = vectorStore
                 .doSimilaritySearch(SearchRequest.builder()
                         .query(groundingRequest.prompt())
@@ -80,15 +77,14 @@ public class GroundingService {
 
         String context = results.stream()
                 .filter(Objects::nonNull)
-                .filter(result -> result.getScore() != null && result.getScore() > 0.7)
-                .map(Document::getText)
-                .filter(text -> text != null && !text.isEmpty())
+                .filter(result -> result.getScore() != null && result.getScore() > 0.8)
                 .limit(2)
+                .map(Document::getText)
                 .collect(Collectors.joining("\n"));
 
         log.info("context :  {} ", context);
 
-        if(StringUtils.isNotEmpty(context)) {
+        if (StringUtils.isNotEmpty(context)) {
             log.info("Matched context :  {} ", context);
 
             PromptTemplate promptTemplate = new PromptTemplate(ragQAPrompt);
@@ -103,7 +99,7 @@ public class GroundingService {
             log.info("response : {} ", response);
             return new GroundingResponse(response);
 
-        }else{
+        } else {
             log.info("没有相关上下文，因此发送默认响应");
             return new GroundingResponse("抱歉，未找到相关信息");
         }
