@@ -1,10 +1,12 @@
 package com.llm.service;
 
+import com.llm.utils.RagUtiils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.ParagraphPdfDocumentReader;
+import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,11 +41,43 @@ public class IngestionService implements CommandLineRunner {
 //        ingestPDFDocs(faqPdf);
     }
 
+    public void ingest(byte[] fileContent, String fileName, String ingestType) {
+        log.info("IngestionService 已调用 - 使用 fileName：{}，ingestType：{}", fileName, ingestType);
+        Resource docSource = new ByteArrayResource(fileContent){
+            @Override
+            public String getFilename() {
+                return fileName;
+            }
+        };
+
+        String fileExtension = RagUtiils.getFileExtension(fileName);
+        switch(fileExtension){
+            case "pdf" -> {
+                log.info("正在导入 PDF 文件: {}", fileName);
+                // 在此处实现 PDF 提取逻辑
+                ingestPDFDocs(ingestType, docSource);
+            }
+            case "docx" -> {
+                log.info("正在导入 DOCX 文件: {}", fileName);
+                // 在此处实现 DOCX 提取逻辑
+                ingestWordDocs(fileName, ingestType, docSource);
+            }
+            default -> throw new IllegalArgumentException("不支持的文件类型: " + fileExtension);
+        }
+    }
+
     private void ingestPDFDocs(String ingestType, Resource pdfResource) {
-        log.info("Ingesting PDF docs");
+        log.info("提取 PDF 文档");
         List<Document> docs = getPDFDocuments(ingestType, pdfResource);
         vectorStore.add(docs);
         log.info("已成功从 pdf 中提取 {} 个文档", docs.size());
+    }
+
+    private void ingestWordDocs(String filename, String ingestType, Resource docSource) {
+        log.info("提取 DOCX 文档");
+        List<Document> docs = new TikaDocumentReader(docSource).get();
+        vectorStore.add(docs);
+        log.info("已成功从 word 中提取 {} 个文档", docs.size());
     }
 
     private static List<Document> getPDFDocuments(String ingestType, Resource pdfResource) {
@@ -59,16 +93,5 @@ public class IngestionService implements CommandLineRunner {
         }
     }
 
-    public void ingest(byte[] fileContent, String fileName, String ingestType) {
-        log.info("IngestionService 已调用 - 使用 fileName：{}，ingestType：{}", fileName, ingestType);
-        Resource docSource = new ByteArrayResource(fileContent){
-            @Override
-            public String getFilename() {
-                return fileName;
-            }
-        };
-        ingestPDFDocs(ingestType, docSource);
-        log.info("提取已成功完成.");
-    }
 }
 
