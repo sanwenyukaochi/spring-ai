@@ -7,6 +7,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.ParagraphPdfDocumentReader;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,7 +44,7 @@ public class IngestionService implements CommandLineRunner {
 
     public void ingest(byte[] fileContent, String fileName, String ingestType) {
         log.info("IngestionService 已调用 - 使用 fileName：{}，ingestType：{}", fileName, ingestType);
-        Resource docSource = new ByteArrayResource(fileContent){
+        Resource docSource = new ByteArrayResource(fileContent) {
             @Override
             public String getFilename() {
                 return fileName;
@@ -51,7 +52,7 @@ public class IngestionService implements CommandLineRunner {
         };
 
         String fileExtension = RagUtiils.getFileExtension(fileName);
-        switch(fileExtension){
+        switch (fileExtension) {
             case "pdf" -> {
                 log.info("正在导入 PDF 文件: {}", fileName);
                 // 在此处实现 PDF 提取逻辑
@@ -75,23 +76,35 @@ public class IngestionService implements CommandLineRunner {
 
     private void ingestWordDocs(String filename, String ingestType, Resource docSource) {
         log.info("提取 DOCX 文档");
-        List<Document> docs = new TikaDocumentReader(docSource).get();
+        List<Document> docs = getWordDocuments(docSource, ingestType);
         vectorStore.add(docs);
         log.info("已成功从 word 中提取 {} 个文档", docs.size());
     }
 
     private static List<Document> getPDFDocuments(String ingestType, Resource pdfResource) {
-        try{
-            return  switch (ingestType){
+        try {
+            return switch (ingestType) {
                 case "page" -> new PagePdfDocumentReader(pdfResource).get();
                 case "paragraph" -> new ParagraphPdfDocumentReader(pdfResource).get();
                 default -> throw new IllegalArgumentException("提取类型无效: " + ingestType);
             };
-        }catch (Exception e ){
+        } catch (Exception e) {
             log.error("读取 PDF 文档时出错: {}", e.getMessage());
             throw new RuntimeException("读取 PDF 文档时出错", e);
         }
     }
 
+    private static List<Document> getWordDocuments(Resource docSource, String ingestType) {
+        List<Document> docs = new TikaDocumentReader(docSource).get();
+        return switch (ingestType) {
+            case "token" -> {
+//                TokenTextSplitter splitter = new TokenTextSplitter();
+                TokenTextSplitter splitter = new TokenTextSplitter(250, 150,
+                        10, 5000, true);
+                yield splitter.apply(docs);
+            }
+            default -> docs;
+        };
+    }
 }
 
